@@ -1,3 +1,4 @@
+const usersCollection = require('../db').collection("users")
 const validator = require('validator')
 
 
@@ -13,11 +14,11 @@ User.prototype.cleanUp = function() {
 
     // get rid of any bogus properties
     this.data = {
-        username = this.data.username.trim().toLowerCase(),
-        email = this.data.email.trim().toLowerCase(),
-        password = this.data.password
+        username: this.data.username.trim().toLowerCase(),
+        email: this.data.email.trim().toLowerCase(),
+        password: this.data.password
+      }
     }
-}
 
 User.prototype.validate = function() {
     if(this.data.username == "") {this.errors.push("You must provide a username.")}
@@ -37,7 +38,9 @@ User.prototype.register = function() {
 
     // Step #2: only if there are no validation errors
     // save the user data into a database
-    
+    if(!this.errors.length) {
+        usersCollection.insertOne(this.data)
+    }
 
 
 }
