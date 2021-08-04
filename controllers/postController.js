@@ -10,10 +10,14 @@ exports.create = function(req, res) {
     res.send("New post created.")
   }).catch(function(errors) {
     res.send(errors)
-    console.log(errors)
   })
 }
 
-exports.viewSingle = function(req, res) {
-  res.render('single-post-screen')
+exports.viewSingle = async function(req, res) {
+  try {
+    let post = await Post.findSingleById(req.params.id)
+    res.render('single-post-screen', {post: post})
+  } catch {
+    res.render('404')
+  }
 }
