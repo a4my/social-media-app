@@ -1,5 +1,5 @@
 const postsCollection = require('../db').db().collection("posts")
-const ObjectID = require('mongodb').ObjectID
+const ObjectId = require('mongodb').ObjectId
 
 let Post = function(data, userid) {
   this.data = data
@@ -16,7 +16,7 @@ Post.prototype.cleanUp = function() {
     title: this.data.title.trim(),
     body: this.data.body.trim(),
     createdDate: new Date(),
-    author: this.userid
+    author: ObjectId(this.userid)
   }
 }
 
@@ -39,6 +39,25 @@ Post.prototype.create = function() {
       })
     } else {
       reject(this.errors)
+    }
+  })
+}
+
+Post.findSingleById = function(id) {
+  return new Promise(async function(resolve, reject) {
+    if (typeof(id) != "string" || !ObjectId.isValid(id)) {
+      reject()
+      return
+    }
+    let posts = await postsCollection.aggregate([
+      {$match: {_id: new ObjectId(id)}},
+      {$lookup: {from: "users", localField: "author", foreignField: "_id", as: "authorDocument"}}
+    ]).toArray()
+    if (posts.length) {
+      console.log(posts[0])
+      resolve(posts[0])
+    } else {
+      reject()
     }
   })
 }
