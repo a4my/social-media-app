@@ -13,3 +13,7 @@ exports.create = function(req, res) {
     console.log(errors)
   })
 }
+
+exports.viewSingle = function(req, res) {
+  res.render('single-post-screen')
+}
