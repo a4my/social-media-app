@@ -33,8 +33,8 @@ Post.prototype.create = function() {
     this.validate()
     if (!this.errors.length) {
       // save post into database
-      postsCollection.insertOne(this.data).then(() => {
-        resolve()
+      postsCollection.insertOne(this.data).then((info) => {
+        resolve(info.ops[0]._id)
       }).catch(() => {
         this.errors.push("Please try again later.")
         reject(this.errors)
@@ -49,7 +49,7 @@ Post.prototype.update = function() {
   return new Promise(async (resolve, reject) => {
     try {
       let post = await Post.findSingleById(this.requestedPostId, this.userid)
-      if(post.isVisitorOwner) {
+      if (post.isVisitorOwner) {
         // actually update the db
         let status = await this.actuallyUpdate()
         resolve(status)
@@ -90,10 +90,10 @@ Post.reusablePostQuery = function(uniqueOperations, visitorId) {
 
     let posts = await postsCollection.aggregate(aggOperations).toArray()
 
-    // Clean up author property in each post object
+    // clean up author property in each post object
     posts = posts.map(function(post) {
       post.isVisitorOwner = post.authorId.equals(visitorId)
-      
+
       post.author = {
         username: post.author.username,
         avatar: new User(post.author, true).avatar
